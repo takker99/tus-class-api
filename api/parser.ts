@@ -19,9 +19,9 @@ export function parseSummary(rowHeight: Element) {
 }
 
 
-export async function parseAnnounce(id: string, auth: {jSessionId: string}) {
+export async function parseAnnounce(id: string, options: {jSessionId: string, withDataURI: boolean}) {
     const pathname = `/up/faces/up/po/pPoa0202A.jsp?fieldId=${id}`
-    const res = await getFromCLASS(pathname, auth);
+    const res = await getFromCLASS(pathname, options);
     const dom = new DOMParser().parseFromString(await res.text(), 'text/html');
     if (!dom) throw Error(`Could not parse HTML text from "${pathname}".`);
 
@@ -43,14 +43,14 @@ export async function parseAnnounce(id: string, auth: {jSessionId: string}) {
     const files = [];
     let totalSize = 0;
     for (const {name, id} of filenames) {
-        const res = await download(id, comSunFacesVIEW, auth);
+        const res = await download(id, comSunFacesVIEW, options);
         const blob = await res.blob();
-        files.push(totalSize + blob.size > 4 * 1024 * 1024 ?
+        files.push(!options.withDataURI || totalSize + blob.size > 4 * 1024 * 1024 ?
             {name, size: blob.size} :
             {name, dataURI: await BlobToURI(blob), size: blob.size});
         totalSize += blob.size;
     }
-    await getFromCLASS('/up/faces/ajax/up/co/RemoveSessionAjax?target=null&windowName=Poa00201A&pcClass=com.jast.gakuen.up.po.PPoa0202A', auth); // 既読にする
+    await getFromCLASS('/up/faces/ajax/up/co/RemoveSessionAjax?target=null&windowName=Poa00201A&pcClass=com.jast.gakuen.up.po.PPoa0202A', options); // 既読にする
 
     return {title, sender, lines, files};
 }

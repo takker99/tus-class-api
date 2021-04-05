@@ -26,7 +26,7 @@ export default async (req: ServerRequest) => {
     }
 
     try {
-        const json = await getAnnounce(categoryId, announceId, auth);
+        const json = await getAnnounce(categoryId, announceId, false, auth);
         const headers = new Headers();
         headers.set('Content-Type', 'application/json');
         req.respond({status: 200, body: JSON.stringify(json), headers});
@@ -35,12 +35,12 @@ export default async (req: ServerRequest) => {
     }
 };
 
-export async function getAnnounce(categoryId: number, announceId: string, auth: Auth) {
+export async function getAnnounce(categoryId: number, announceId: string, withDataURI: boolean, auth: Auth) {
     const {announceSummary, comSunFacesVIEW, jSessionId} = await login(auth);
     const hasHiddenAnnounces = announceSummary.find(({id}) => id === categoryId)?.hasHiddenAnnounces;
     if (hasHiddenAnnounces) {
         // 詳細ページに移動する
         await goDetailedInfoPage(categoryId, {comSunFacesVIEW, jSessionId});
     }
-    return await parseAnnounce(announceId, {jSessionId});
+    return await parseAnnounce(announceId, {jSessionId, withDataURI});
 }

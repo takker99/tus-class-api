@@ -41,10 +41,14 @@ export async function parseAnnounce(id: string, auth: {jSessionId: string}) {
     // file dataを取得する
     const comSunFacesVIEW = getComSunFacesVIEW(dom);
     const files = [];
+    let totalSize = 0;
     for (const {name, id} of filenames) {
         const res = await download(id, comSunFacesVIEW, auth);
-        const url = await BlobToURI(await res.blob());
-        files.push({name, dataURI: url});
+        const blob = await res.blob();
+        files.push(totalSize + blob.size > 5 * 1024 * 1024 ?
+            {name, size: blob.size} :
+            {name, dataURI: await BlobToURI(blob), size: blob.size});
+        totalSize += blob.size;
     }
     await getFromCLASS('/up/faces/ajax/up/co/RemoveSessionAjax?target=null&windowName=Poa00201A&pcClass=com.jast.gakuen.up.po.PPoa0202A', auth); // 既読にする
 

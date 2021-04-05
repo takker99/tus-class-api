@@ -16,12 +16,12 @@ export default async (req: ServerRequest) => {
     let param = url.searchParams.get('category');
     const categoryId = param ? parseInt(param) : undefined;
     if (categoryId === undefined) {
-        req.respond({ status: 400, body: 'Category ID is not set.' });
+        req.respond({status: 400, body: 'Category ID is not set.'});
         return;
     }
     const announceId = url.searchParams.get('announce')
     if (!announceId) {
-        req.respond({ status: 400, body: 'Announce ID is not set.' });
+        req.respond({status: 400, body: 'Announce ID is not set.'});
         return;
     }
 

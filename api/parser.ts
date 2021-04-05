@@ -45,7 +45,7 @@ export async function parseAnnounce(id: string, auth: {jSessionId: string}) {
     for (const {name, id} of filenames) {
         const res = await download(id, comSunFacesVIEW, auth);
         const blob = await res.blob();
-        files.push(totalSize + blob.size > 5 * 1024 * 1024 ?
+        files.push(totalSize + blob.size > 4 * 1024 * 1024 ?
             {name, size: blob.size} :
             {name, dataURI: await BlobToURI(blob), size: blob.size});
         totalSize += blob.size;

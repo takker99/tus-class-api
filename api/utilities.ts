@@ -18,3 +18,9 @@ export function getComSunFacesVIEW(dom: HTMLDocument | null) {
     if (!comSunFacesVIEW) throw Error('Could not get com.sun.faces.VIEW');
     return comSunFacesVIEW;
 }
+
+export function getTable(dom: HTMLDocument | null, id: string) {
+    const table = dom?.getElementById(id);
+    if (!table) throw Error(`Could not find table#${id}`);
+    return table;
+}

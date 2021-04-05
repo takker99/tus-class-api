@@ -1,7 +1,7 @@
 import {DOMParser} from "https://deno.land/x/deno_dom/deno-dom-wasm.ts";
 import {getAuthData} from './auth.ts';
 import {postToCLASS} from './fetch.ts';
-import {getComSunFacesVIEW, range} from './utilities.ts';
+import {getComSunFacesVIEW, range, getTable} from './utilities.ts';
 
 export type Auth = {
     userId: string;
@@ -28,8 +28,7 @@ export async function login({userId, password}: Auth) {
     const announceSummary = [];
     {
         const baseId = 'form1:Poa00201A:htmlParentTable';
-        const announceTable = dom.getElementById(baseId);
-        if (!announceTable) throw Error(`Could not find table#${baseId}`);
+        const announceTable = getTable(dom, baseId);
         for (const index of range(announceTable.children[0].children.length)) {
             announceSummary.push({
                 title: dom.getElementById(`${baseId}:${index}:htmlHeaderTbl:0:htmlHeaderCol`)?.textContent?.trim(),
@@ -40,6 +39,6 @@ export async function login({userId, password}: Auth) {
         }
     }
 
-    return {html, comSunFacesVIEW, announceSummary};
+    return {html, comSunFacesVIEW, jSessionId, announceSummary};
 }
 

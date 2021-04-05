@@ -1,5 +1,4 @@
 import {ServerRequest} from "https://deno.land/std/http/server.ts";
-import {multiParser} from 'https://deno.land/x/multiparser@v2.1.0/mod.ts'
 import {Auth} from './login.ts';
 
 export function onlyPOST(req: ServerRequest) {
@@ -9,20 +8,11 @@ export function onlyPOST(req: ServerRequest) {
 }
 
 export async function checkAuth(req: ServerRequest) {
-    const formData =  await multiParser(req);
-    console.log(formData);
+    const buf: Uint8Array = await Deno.readAll(req.body);
+    const text = new TextDecoder().decode(buf);
+    const search = `?${decodeURIComponent(text)}`;
+    const params = new URLSearchParams(search);
+    console.log([...params.entries()]);
 
-    if (!formData) {
-        req.respond({status: 400, body: 'No form data'})
-        return undefined;
-    }
-    if (!formData.fields.userId) {
-        req.respond({status: 400, body: 'User ID is not set.'})
-        return undefined;
-    }
-    if (!formData.fields.password) {
-        req.respond({status: 400, body: 'Password is not set.'})
-        return undefined;
-    }
-    return {userId: formData.fields.userId, password: formData.fields.password} as Auth;
+    return {userId: params.get('userId'), password: params.get('password')} as Auth;
 }

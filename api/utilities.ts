@@ -24,3 +24,12 @@ export function getTable(dom: HTMLDocument | null, id: string) {
     if (!table) throw Error(`Could not find table#${id}`);
     return table;
 }
+
+export function BlobToURI(blob: Blob) {
+  const fileReader = new FileReader();
+  const promise = new Promise((resolve: (value?: string) => void) =>
+    fileReader.onload = () => resolve(fileReader.result as string)
+  );
+  fileReader.readAsDataURL(blob);
+  return promise;
+}

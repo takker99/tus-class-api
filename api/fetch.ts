@@ -20,3 +20,14 @@ export async function postToCLASS(pathname: string, formData: {key: string; valu
 
     return await fetch(url, options);
 }
+
+export async function getFromCLASS(pathname: string, {jSessionId}: Cookie) {
+    const options = {
+        headers: {
+            Cookie: jSessionId,
+        },
+    };
+    const url = `https://class.admin.tus.ac.jp${pathname}`;
+
+    return await fetch(url, options);
+}

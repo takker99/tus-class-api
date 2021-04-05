@@ -12,7 +12,6 @@ export async function checkAuth(req: ServerRequest) {
     const text = new TextDecoder().decode(buf);
     const search = `?${decodeURIComponent(text)}`;
     const params = new URLSearchParams(search);
-    console.log([...params.entries()]);
 
     return {userId: params.get('userId'), password: params.get('password')} as Auth;
 }

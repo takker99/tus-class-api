@@ -38,7 +38,6 @@ export default async (req: ServerRequest) => {
 export async function getAnnounce(categoryId: number, announceId: string, auth: Auth) {
     const {announceSummary, comSunFacesVIEW, jSessionId} = await login(auth);
     const hasHiddenAnnounces = announceSummary.find(({id}) => id === categoryId)?.hasHiddenAnnounces;
-
     if (hasHiddenAnnounces) {
         // 詳細ページに移動する
         await goDetailedInfoPage(categoryId, {comSunFacesVIEW, jSessionId});

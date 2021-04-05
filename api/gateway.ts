@@ -10,6 +10,8 @@ export function onlyPOST(req: ServerRequest) {
 
 export async function checkAuth(req: ServerRequest) {
     const formData =  await multiParser(req);
+    console.log(formData);
+
     if (!formData) {
         req.respond({status: 400, body: 'No form data'})
         return undefined;

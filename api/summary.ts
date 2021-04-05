@@ -4,6 +4,7 @@ import {onlyPOST, checkAuth} from './gateway.ts';
 
 export default async (req: ServerRequest) => {
     if (!onlyPOST(req)) return;
+    console.log(req);
     const auth =  await checkAuth(req);
     if (!auth) return;
 

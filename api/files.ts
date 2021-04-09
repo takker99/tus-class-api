@@ -1,8 +1,6 @@
 import {ServerRequest} from "https://deno.land/std/http/server.ts";
-import {login, Auth} from './login.ts';
 import {onlyPOST, checkAuth} from './gateway.ts';
-import {parseAnnounce, getFiles} from './parser.ts';
-import {goDetailedInfoPage} from './navigation.ts';
+import {getAnnounce} from './announce.ts';
 
 export default async (req: ServerRequest) => {
     if (!onlyPOST(req)) return;
@@ -26,21 +24,12 @@ export default async (req: ServerRequest) => {
     }
 
     try {
-        const json = await getAnnounce(categoryId, announceId, false, auth);
+        const downloadFiles = await getAnnounce(categoryId, announceId, true, auth) as Blob;
+        const buffer = new Uint8Array(await downloadFiles.arrayBuffer());
         const headers = new Headers();
-        headers.set('Content-Type', 'application/json');
-        req.respond({status: 200, body: JSON.stringify(json), headers});
+        headers.set('Content-Type',downloadFiles.type);
+        req.respond({status: 200, body: buffer, headers});
     } catch (e) {
         req.respond({status: 400, body: e.message});
     }
 };
-
-export async function getAnnounce(categoryId: number, announceId: string, file: boolean, auth: Auth) {
-    const {announceSummary, comSunFacesVIEW, jSessionId} = await login(auth);
-    const hasHiddenAnnounces = announceSummary.find(({id}) => id === categoryId)?.hasHiddenAnnounces;
-    if (hasHiddenAnnounces) {
-        // 詳細ページに移動する
-        await goDetailedInfoPage(categoryId, {comSunFacesVIEW, jSessionId});
-    }
-    return file ? await getFiles(announceId, {jSessionId}) : await parseAnnounce(announceId, {jSessionId});
-}

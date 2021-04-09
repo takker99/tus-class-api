@@ -1,7 +1,6 @@
 import {DOMParser, Element} from "https://deno.land/x/deno_dom/deno-dom-wasm.ts";
-import {JSZip} from "https://deno.land/x/jszip@0.9.0/mod.ts"
 import {postToCLASS, getFromCLASS} from './fetch.ts';
-import {getComSunFacesVIEW, BlobToURI} from './utilities.ts';
+import {getComSunFacesVIEW} from './utilities.ts';
 
 export function parseSummary(rowHeight: Element) {
     const titleDOM = rowHeight.getElementsByClassName('title')[0];
@@ -44,32 +43,22 @@ export async function parseAnnounce(id: string, options: {jSessionId: string}) {
     return {title, sender, lines, files: filenames};
 }
 
-export async function getFiles(id: string, options: {jSessionId: string}) {
+export async function getFile(id: string, fileId: number, options: {jSessionId: string}) {
     const pathname = `/up/faces/up/po/pPoa0202A.jsp?fieldId=${id}`
     const res = await getFromCLASS(pathname, options);
     const dom = new DOMParser().parseFromString(await res.text(), 'text/html');
     if (!dom) throw Error(`Could not parse HTML text from "${pathname}".`);
 
-    const filenames = [...(dom.getElementById('form1:htmlFileTable')
-        ?.getElementsByTagName?.('tr') ?? [])]
-        .flatMap((_, index) => {
-            // textContentだと途中で省略されてしまうので、titleから取得する
-            const label = dom.getElementById(`form1:htmlFileTable:${index}:labelFileName`);
-            const name = label?.getAttribute('title');
-            return name ? [{name, id: index, }] : [];
-        });
+    const filename = dom.getElementById(`form1:htmlFileTable:${fileId}:labelFileName`)?.getAttribute('title');
 
     // file dataを取得する
-    const comSunFacesVIEW = getComSunFacesVIEW(dom);
-    const zip = new JSZip();
-    for (const {name, id} of filenames) {
-        const res = await download(id, comSunFacesVIEW, options);
-        zip.addFile(name, new Uint8Array(await res.arrayBuffer()));
-    }
+    const fileRes = await download(fileId, getComSunFacesVIEW(dom), options);
     await getFromCLASS('/up/faces/ajax/up/co/RemoveSessionAjax?target=null&windowName=Poa00201A&pcClass=com.jast.gakuen.up.po.PPoa0202A', options); // 既読にする
 
-    // 圧縮して渡す
-    return await zip.generateAsync({type: 'blob', compression: 'DEFLATE', compressionOptions: {level: 9}});
+    return {
+        content: await fileRes.blob(),
+        filename,
+    };
 }
 
 async function download(id: number, comSunFacesVIEW: string, auth: {jSessionId: string}) {

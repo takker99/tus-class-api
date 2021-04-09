@@ -12,8 +12,8 @@
       "dest": "api/list"
     },
     {
-      "src": "/v1/announces/files",
-      "dest": "api/files"
+      "src": "/v1/announces/file",
+      "dest": "api/file"
     },
     {
       "src": "/v1/announces/announce",

@@ -71,3 +71,10 @@ export async function backToTop({comSunFacesVIEW, jSessionId}: Auth) {
         'form1': 'form1',
     }, {jSessionId});
 }
+export async function goSyllabusList(page: number, {comSunFacesVIEW, jSessionId}: Auth) {
+    return await postToCLASS('/up/faces/up/km/Kms00802A.jsp', {
+        'form1:htmlKekkatable:web1__pagerWeb': `${page}`,
+        'com.sun.faces.VIEW': comSunFacesVIEW,
+        'form1': 'form1',
+    }, {jSessionId});
+}

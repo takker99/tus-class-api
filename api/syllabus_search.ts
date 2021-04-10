@@ -1,7 +1,8 @@
 import {DOMParser} from "https://deno.land/x/deno_dom/deno-dom-wasm.ts";
 import {loginAsGuest} from './login.ts';
 import {ServerRequest} from "https://deno.land/std/http/server.ts";
-import {postToCLASS} from './fetch.ts';
+import {postToCLASS, goSyllabusList} from './fetch.ts';
+import {getComSunFacesVIEW} from './utilities.ts';
 
 const TERMS = [1, 2, 11, 12, 13, 14] as const;
 const COURSE_TYPES = ['EA', 'EB', 'EC', 'ED', 'EE', 'EF', 'EG', 'EH', 'EI', 'EJ', 'EK', 'EM', 'EO', 'EQ', 'ER', 'ES', 'ET', 'EU', 'EV', 'GA', 'GB', 'GC', 'GD', 'GE', 'GF', 'GG', 'GH', 'GI', 'GJ', 'GK', 'GM', 'GO', 'GQ', 'GR', 'GS', 'GT', 'GU', 'GV', 'JA', 'JB', 'JC', 'JD', 'JE', 'JF', 'JG', 'JH', 'JI', 'JJ', 'JK', 'JM', 'JO', 'JQ', 'JR', 'JS', 'JT', 'JU', 'JV', 'KA', 'KB', 'KC', 'KD', 'KE', 'KF', 'KG', 'KH', 'KI', 'KJ', 'KK', 'KM', 'KO', 'KQ', 'KR', 'KS', 'KT', 'KU', 'KV', 'SA', 'SB', 'SC', 'SD', 'SE', 'SF', 'SG', 'SH', 'SI', 'SJ', 'SK', 'SM', 'SO', 'SQ', 'SR', 'SS', 'ST', 'SU', 'SV', 'ZA', 'ZB', 'ZC', 'ZD', 'ZE', 'ZF', 'ZG', 'ZH', 'ZI', 'ZJ', 'ZK', 'ZM', 'ZO', 'ZQ', 'ZR', 'ZS', 'ZT', 'ZU', 'ZV'] as const;
@@ -21,9 +22,10 @@ type Query = {
     keyword_course: string;
     keyword_instructor: string;
     concentration?: boolean;
+    skip?: number;
 };
 
-const KEYS: (keyof Query)[] = ['year', 'concentration', 'keyword', 'keyword_instructor', 'keyword_course', 'hour', 'day', 'grade', 'term', 'type', 'department'];
+const KEYS: (keyof Query)[] = ['year', 'concentration', 'keyword', 'keyword_instructor', 'keyword_course', 'hour', 'day', 'grade', 'term', 'type', 'department', 'skip'];
 
 export default async (req: ServerRequest) => {
     const base = `${req.headers.get("x-forwarded-proto")}://${req.headers.get(
@@ -84,6 +86,11 @@ export default async (req: ServerRequest) => {
                 case 'concentration':
                     query.concentration = param === 'true' ? true : undefined;
                     return;
+                case 'skip': {
+                    const skip = param ? parseInt(param) : undefined;
+                    query.skip = skip;
+                    return;
+                }
             }
         });
 
@@ -125,7 +132,7 @@ export async function search(query: Query) {
     }
 
     // 検索する
-    const res = await postToCLASS('/up/faces/up/km/Kms00801A.jsp', {
+    let res = await postToCLASS('/up/faces/up/km/Kms00801A.jsp', {
         'form1:htmlNendo': `${query.year}`,
         'form1:htmlGakkiNo': `${query.term ?? ''}`,
         'form1:htmlKamokJugyo': query.type ?? '|all target|',
@@ -140,6 +147,12 @@ export async function search(query: Query) {
         ...params,
     }, {jSessionId});
 
+    // 所定のページに飛ぶ
+    if (query.skip) {
+        const dom = new DOMParser().parseFromString(await res.text(), 'text/html');
+        res = await goSyllabusList(query.skip, {comSunFacesVIEW: getComSunFacesVIEW(dom), jSessionId});
+    }
+
     // 結果を取得する
     const dom = new DOMParser().parseFromString(await res.text(), 'text/html');
     const error = dom?.getElementById('htmlErrorMessage')?.textContent;
@@ -147,8 +160,11 @@ export async function search(query: Query) {
 
     const count = parseInt(dom?.getElementById('form1:htmlKekkatable:htmlGokeiKensu')?.textContent ?? '');
     const pageCount = parseInt(dom?.getElementById('form1:htmlKekkatable:deluxe1__pagerText')?.textContent.match(/\d+\/(\d+)/)?.[1] ?? '');
-    const courses = [...dom?.getElementsByClassName('rowClass1') ?? []]
-        .map((_, index) => {
+    const items = [...dom?.getElementsByClassName('rowClass1') ?? []];
+    const courses = items
+        .flatMap((_, index) => {
+            // pagenationしている分だけずらす
+            index = index + (query.skip ?? 0) * items.length;
             const department = dom?.getElementById(`form1:htmlKekkatable:${index}:htmlCurGakkaRyakCol`)?.getAttribute('title') ?? '';
             const _term = dom?.getElementById(`form1:htmlKekkatable:${index}:htmlGakkiNoCol`)?.textContent?.match(/(\d+)(.*)$/)?.slice(1);
             const year = _term?.[0] ? parseInt(_term[0]) : NaN;
@@ -159,8 +175,8 @@ export async function search(query: Query) {
             const id = content?.[0] ?? '';
             const title = content?.[1] ?? '';
 
-            return {department, year, term, instructors, type, id, title};
+            return title ? [{department, year, term, instructors, type, id, title}] : [];
         });
 
-    return {count, pageCount, courses};
+    return {count, pageCount, courses, ...(query.skip ? {skip: query.skip} : {})};
 }

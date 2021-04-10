@@ -40,12 +40,18 @@ export async function getSyllabus(year: number, courseId: string) {
     const html = await res.text();
     const dom = new DOMParser().parseFromString(html, 'text/html');
     const items = [...dom?.querySelectorAll('.gyoTable.listTable tr') ?? []];
-    const data = items.map(tr => [...tr.children].map(element => element.innerHTML));
+    const data = items.map(tr => [...tr.children].map(element => {
+        const html = element.innerHTML;
+        element.innerHTML = html.replace(/<br\/?\s*>/g, '\n');
+        return element.textContent.trim();
+    }));
     return data.flatMap((array: string[]): ({label: string, value?: string} | string[])[] => {
         if (array.length === 0) return [];
-        if (array.length === 1) return [{label: array[0]}];
+        if (array.length === 1) return array[0] !== '' ? [{label: array[0]}] : [];
         if (array.length === 2) return [{label: array[0], value: array[1]}];
         if (array.length === 4) return [{label: array[0], value: array[1]}, {label: array[2], value: array[3]}];
+        // 空の配列は削る
+        if (array.every(text => text === '')) return [];
         return [array];
     });
 }

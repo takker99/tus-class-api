@@ -4,6 +4,14 @@
   },
   "routes": [
     {
+      "src": "/v1/syllabuses/search",
+      "dest": "api/syllabus_search.ts"
+    },
+    {
+      "src": "/v1/syllabuses/(\\d+)/(.+)",
+      "dest": "api/syllabus.ts?year=$1&courseId=$2"
+    },
+    {
       "src": "/v1/announces/summary",
       "dest": "api/summary"
     },

@@ -42,3 +42,20 @@ export async function login({userId, password}: Auth) {
     return {html, comSunFacesVIEW, jSessionId, announceSummary};
 }
 
+
+export async function loginAsGuest() {
+    let {comSunFacesVIEW, jSessionId} = await getAuthData();
+    const res = await postToCLASS('/up/faces/login/Com00505A.jsp', {
+        'form1:guest.x': '0',
+        'form1.guest.y': '0',
+        'form1': 'form1',
+        'com.sun.faces.VIEW': comSunFacesVIEW,
+    }, {jSessionId});
+
+    const html = await res.text();
+    const dom = new DOMParser().parseFromString(html, 'text/html');
+    if (!dom) throw Error('Could not parse HTML text from "/up/faces/login/Com00505A.jsp".');
+    comSunFacesVIEW = getComSunFacesVIEW(dom);
+
+    return {html, comSunFacesVIEW, jSessionId};
+}

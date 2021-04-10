@@ -1,7 +1,7 @@
 import {DOMParser, Element} from "https://deno.land/x/deno_dom/deno-dom-wasm.ts";
 import {login, Auth} from './login.ts';
 import {parseSummary} from './parser.ts';
-import {goDetailedInfoPage, hasNextPage, goNext} from './navigation.ts';
+import {goDetailedInfoPage, hasNextPage, goNext} from './fetch.ts';
 import {getTable, getComSunFacesVIEW} from './utilities.ts';
 import {ServerRequest} from "https://deno.land/std/http/server.ts";
 import {onlyPOST, checkAuth} from './gateway.ts';

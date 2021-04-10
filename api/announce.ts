@@ -2,7 +2,7 @@ import {ServerRequest} from "https://deno.land/std/http/server.ts";
 import {login, Auth} from './login.ts';
 import {onlyPOST, checkAuth} from './gateway.ts';
 import {parseAnnounce} from './parser.ts';
-import {goDetailedInfoPage} from './navigation.ts';
+import {goDetailedInfoPage} from './fetch.ts';
 
 export default async (req: ServerRequest) => {
     if (!onlyPOST(req)) return;

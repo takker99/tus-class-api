@@ -106,6 +106,16 @@ export default async (req: ServerRequest) => {
     }
 };
 
+const DAYSLIST: Record<string, number> = {
+    '月': 0,
+    '火': 1,
+    '水': 2,
+    '木': 3,
+    '金': 4,
+    '土': 5,
+    '日': 6,
+};
+
 export async function search(query: Query) {
     const {comSunFacesVIEW, jSessionId} = await loginAsGuest();
 
@@ -174,8 +184,20 @@ export async function search(query: Query) {
             const content = dom?.getElementById(`form1:htmlKekkatable:${index}:htmlKamokuNameCol`)?.getAttribute('title')?.match(/^(.+?)　(.*)$/)?.slice(1);
             const id = content?.[0] ?? '';
             const title = content?.[1] ?? '';
+            const hourTexts = dom?.getElementById(`form1:htmlKekkatable:${index}:htmlKaikoYobiCol`)?.textContent?.trim()?.split(/\s/) ?? [];
+            const hours = hourTexts.flatMap(text => {
+                const splitted = text.split('');
+                if (splitted.length !== 2) return [];
+                const [day, hour] = splitted;
 
-            return title ? [{department, year, term, instructors, type, id, title}] : [];
+                return {
+                    hour: parseInt(hour),
+                    day: DAYSLIST[day] ?? '',
+                };
+            })
+
+
+            return title ? [{department, year, term, hours, instructors, type, id, title}] : [];
         });
 
     return {count, pageCount, courses, ...(query.skip ? {skip: query.skip} : {})};

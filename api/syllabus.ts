@@ -63,6 +63,7 @@ export async function getSyllabus(year: number, courseId: string, formatting: bo
 
     // 更に使いやすいようにデータを加工する
     const title = table.find(({label}) => label.includes('科目名称'))?.value;
+    const courseNumber = table.find(({label}) => label.includes('科目番号'))?.value;
     const englishTitle = table.find(({label}) => label.includes('科目名称（英語）'))?.value;
     const instructors = table.find(({label}) => label.includes('教員名'))?.value?.split(',') ?? [];
     const semester = table.find(({label}) => label.includes('開講年度学期'))?.value;
@@ -96,6 +97,7 @@ export async function getSyllabus(year: number, courseId: string, formatting: bo
     return {
         title,
         englishTitle,
+        courseNumber,
         instructors,
         semester,
         hours,

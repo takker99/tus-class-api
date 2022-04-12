@@ -1,4 +1,4 @@
-import { ServerRequest } from "https://deno.land/std/http/server.ts";
+import { ServerRequest } from "../src/deps_pinned.ts";
 import { login } from "../src/login.ts";
 import { checkAuth, onlyPOST } from "../src/gateway.ts";
 

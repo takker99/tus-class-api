@@ -1,6 +1,6 @@
-import { DOMParser } from "https://deno.land/x/deno_dom/deno-dom-wasm.ts";
+import { DOMParser } from "../src/deps.ts";
 import { loginAsGuest } from "../src/login.ts";
-import { ServerRequest } from "https://deno.land/std/http/server.ts";
+import { ServerRequest } from "../src/deps_pinned.ts";
 import { getFromCLASS } from "../src/fetch.ts";
 
 export default async (req: ServerRequest) => {
@@ -12,7 +12,7 @@ export default async (req: ServerRequest) => {
   const url = new URL(req.url, base);
   try {
     // URL parametersを取得する
-    let params = { year: 9999, courseId: "", format: false };
+    const params = { year: 9999, courseId: "", format: false };
     for (const key of ["courseId", "year", "format"]) {
       const param = url.searchParams.get(key) ?? undefined;
       if (key === "year") {
@@ -56,7 +56,9 @@ export async function getSyllabus(
   );
   const html = await res.text();
   const dom = new DOMParser().parseFromString(html, "text/html");
-  const items = [...dom?.querySelectorAll(".gyoTable.listTable tr") ?? []];
+  const items =
+    dom?.querySelector?.(".gyoTable.listTable")?.getElementsByTagName?.("tr") ??
+      [];
   const rawData = items.map((tr) =>
     [...tr.children].map((element) => {
       const html = element.innerHTML;

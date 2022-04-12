@@ -1,4 +1,4 @@
-import { ServerRequest } from "https://deno.land/std/http/server.ts";
+import { ServerRequest } from "../src/deps_pinned.ts";
 import { Auth, login } from "../src/login.ts";
 import { checkAuth, onlyPOST } from "../src/gateway.ts";
 import { parseAnnounce } from "../src/parser.ts";
@@ -15,7 +15,7 @@ export default async (req: ServerRequest) => {
     )
   }`;
   const url = new URL(req.url, base);
-  let param = url.searchParams.get("category");
+  const param = url.searchParams.get("category");
   const categoryId = param ? parseInt(param) : undefined;
   if (categoryId === undefined) {
     req.respond({ status: 400, body: "Category ID is not set." });

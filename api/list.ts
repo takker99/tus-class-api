@@ -1,12 +1,9 @@
-import {
-  DOMParser,
-  Element,
-} from "https://deno.land/x/deno_dom/deno-dom-wasm.ts";
+import { DOMParser, Element } from "../src/deps.ts";
 import { Auth, login } from "../src/login.ts";
 import { parseSummary } from "../src/parser.ts";
 import { goDetailedInfoPage, goNext, hasNextPage } from "../src/fetch.ts";
-import { getComSunFacesVIEW, getTable } from "../src/utilities.ts";
-import { ServerRequest } from "https://deno.land/std/http/server.ts";
+import { getComSunFacesVIEW, getTable } from "../src/util.ts";
+import { ServerRequest } from "../src/deps_pinned.ts";
 import { checkAuth, onlyPOST } from "../src/gateway.ts";
 
 export default async (req: ServerRequest) => {

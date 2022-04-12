@@ -1,6 +1,6 @@
 import { DOMParser } from "https://deno.land/x/deno_dom/deno-dom-wasm.ts";
 import { loginAsGuest } from "../src/login.ts";
-import { ServerRequest } from "https://deno.land/std/http/server.ts";
+import { ServerRequest } from "../src/deps_pinned.ts";
 import { goSyllabusList, postToCLASS } from "../src/fetch.ts";
 import { getComSunFacesVIEW } from "../src/util.ts";
 
@@ -436,7 +436,7 @@ export default async (req: ServerRequest) => {
   const url = new URL(req.url, base);
 
   // URL parametersを取得する
-  let query: Partial<Query> = {};
+  const query: Partial<Query> = {};
   try {
     KEYS.forEach((key) => {
       const param = url.searchParams.get(key) ?? undefined;
@@ -547,7 +547,7 @@ const DAYSLIST: Record<string, number> = {
 export async function search(query: Query) {
   const { comSunFacesVIEW, jSessionId } = await loginAsGuest();
 
-  let params: { [key: string]: string } = {
+  const params: { [key: string]: string } = {
     "form1:htmlShikibetsuKbn": "",
     "form1:htmlKanriNo": "",
     "com.sun.faces.VIEW": "",

@@ -1,5 +1,5 @@
-import { ServerRequest } from "https://deno.land/std/http/server.ts";
-import { contentType } from "https://deno.land/x/media_types@v2.7.1/mod.ts";
+import { ServerRequest } from "../src/deps_pinned.ts";
+import { contentType } from "../src/deps.ts";
 import { checkAuth, onlyPOST } from "../src/gateway.ts";
 import { getFile as fetchFile } from "../src/parser.ts";
 import { goDetailedInfoPage } from "../src/fetch.ts";

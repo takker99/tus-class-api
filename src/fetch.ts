@@ -1,5 +1,5 @@
 import { createURLSearchParams } from "./util.ts";
-import { HTMLDocument } from "https://deno.land/x/deno_dom/deno-dom-wasm.ts";
+import { HTMLDocument } from "./deps.ts";
 
 type Cookie = {
   jSessionId: string;

@@ -2,7 +2,7 @@ import { DOMParser } from "../src/deps.ts";
 import { loginAsGuest } from "../src/login.ts";
 import { ServerRequest } from "../src/deps_pinned.ts";
 import { getFromCLASS } from "../src/fetch.ts";
-import { getRequestURL } from "../src/util.ts";
+import { getRequestURL, respond } from "../src/util.ts";
 
 export default async (req: ServerRequest) => {
   const url = getRequestURL(req);
@@ -25,17 +25,9 @@ export default async (req: ServerRequest) => {
 
     // 検索を開始する
     const json = await getSyllabus(params.year, params.courseId, params.format);
-    const headers = new Headers();
-    headers.set("Content-Type", "application/json");
-    req.respond({ status: 200, body: JSON.stringify(json), headers });
+    respond({ status: 200, body: json, request: req });
   } catch (e) {
-    const headers = new Headers();
-    headers.set("Content-Type", "application/json");
-    req.respond({
-      status: 400,
-      body: JSON.stringify({ error: e.message }),
-      headers,
-    });
+    respond({ status: 400, body: { error: e.message }, request: req });
   }
 };
 

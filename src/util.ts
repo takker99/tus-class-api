@@ -44,3 +44,28 @@ export const getRequestURL = (request: ServerRequest): URL => {
   }`;
   return new URL(request.url, base);
 };
+
+export type JSON = null | undefined | number | string | boolean | JSON[] | {
+  [key: string]: JSON;
+};
+export interface ResponseArgs<T extends JSON> {
+  status: number;
+  body: T;
+  request: ServerRequest;
+}
+export const respond = <T extends JSON>(
+  args: ResponseArgs<T>,
+) => {
+  const headers = new Headers();
+  headers.set("Content-Type", "application/json");
+  const origin = args.request.headers.get("Origin");
+  if (origin) {
+    headers.set("Access-Control-Allow-Origin", origin);
+    headers.set("Vary", "Origin");
+  }
+  args.request.respond({
+    status: args.status,
+    body: JSON.stringify(args.body),
+    headers,
+  });
+};

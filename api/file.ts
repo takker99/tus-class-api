@@ -4,33 +4,23 @@ import { checkAuth, onlyPOST } from "../src/gateway.ts";
 import { getFile as fetchFile } from "../src/parser.ts";
 import { goDetailedInfoPage } from "../src/fetch.ts";
 import { Auth, login } from "../src/login.ts";
-import { getRequestURL } from "../src/util.ts";
+import { getRequestURL, respond } from "../src/util.ts";
 
 export default async (req: ServerRequest) => {
   if (!onlyPOST(req)) return;
   const auth = await checkAuth(req);
   if (!auth) return;
-
-  const url = getRequestURL(req);
-  let param = url.searchParams.get("category");
-  const categoryId = param ? parseInt(param) : undefined;
-  if (categoryId === undefined) {
-    req.respond({ status: 400, body: "Category ID is not set." });
-    return;
-  }
-  const announceId = url.searchParams.get("announce");
-  if (!announceId) {
-    req.respond({ status: 400, body: "Announce ID is not set." });
-    return;
-  }
-  param = url.searchParams.get("file");
-  const fileId = param ? parseInt(param) : undefined;
-  if (fileId === undefined) {
-    req.respond({ status: 400, body: "File ID is not set." });
-    return;
-  }
-
   try {
+    const url = getRequestURL(req);
+    let param = url.searchParams.get("category");
+    const categoryId = param ? parseInt(param) : undefined;
+    if (categoryId === undefined) throw Error("Category ID is not set.");
+    const announceId = url.searchParams.get("announce");
+    if (!announceId) throw Error("Announce ID is not set.");
+    param = url.searchParams.get("file");
+    const fileId = param ? parseInt(param) : undefined;
+    if (fileId === undefined) throw Error("File ID is not set.");
+
     const { content, filename } = await getFile(
       categoryId,
       announceId,
@@ -45,7 +35,7 @@ export default async (req: ServerRequest) => {
     );
     req.respond({ status: 200, body: buffer, headers });
   } catch (e) {
-    req.respond({ status: 400, body: e.message });
+    respond({ status: 400, body: { error: e.message }, request: req });
   }
 };
 

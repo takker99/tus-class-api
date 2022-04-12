@@ -2,7 +2,12 @@ import { DOMParser, Element } from "../src/deps.ts";
 import { Auth, login } from "../src/login.ts";
 import { parseSummary } from "../src/parser.ts";
 import { goDetailedInfoPage, goNext, hasNextPage } from "../src/fetch.ts";
-import { getComSunFacesVIEW, getRequestURL, getTable } from "../src/util.ts";
+import {
+  getComSunFacesVIEW,
+  getRequestURL,
+  getTable,
+  respond,
+} from "../src/util.ts";
 import { ServerRequest } from "../src/deps_pinned.ts";
 import { checkAuth, onlyPOST } from "../src/gateway.ts";
 
@@ -11,21 +16,25 @@ export default async (req: ServerRequest) => {
   const auth = await checkAuth(req);
   if (!auth) return;
 
-  const url = getRequestURL(req);
-  const param = url.searchParams.get("category");
-  const categoryId = param ? parseInt(param) : undefined;
-  if (categoryId === undefined) {
-    req.respond({ status: 400, body: "Category ID is not set." });
-    return;
-  }
-
   try {
+    const url = getRequestURL(req);
+    const param = url.searchParams.get("category");
+    const categoryId = param ? parseInt(param) : undefined;
+    if (categoryId === undefined) throw new Error("Category ID is not set.");
+
     const json = await getAnnounceList(categoryId, auth);
     const headers = new Headers();
     headers.set("Content-Type", "application/json");
-    req.respond({ status: 200, body: JSON.stringify(json), headers });
+    respond({
+      status: 200,
+      body: json.map(({ updated, ...rest }) => ({
+        updated: updated.getTime() / 1000,
+        ...rest,
+      })),
+      request: req,
+    });
   } catch (e) {
-    req.respond({ status: 400, body: e.message });
+    respond({ status: 400, body: { error: e.message }, request: req });
   }
 };
 

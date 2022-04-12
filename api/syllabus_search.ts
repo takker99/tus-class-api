@@ -2,7 +2,7 @@ import { DOMParser } from "../src/deps.ts";
 import { loginAsGuest } from "../src/login.ts";
 import { ServerRequest } from "../src/deps_pinned.ts";
 import { goSyllabusList, postToCLASS } from "../src/fetch.ts";
-import { getComSunFacesVIEW, getRequestURL } from "../src/util.ts";
+import { getComSunFacesVIEW, getRequestURL, respond } from "../src/util.ts";
 
 const TERMS = [1, 2, 11, 12, 13, 14] as const;
 const COURSE_TYPES = [
@@ -511,21 +511,9 @@ export default async (req: ServerRequest) => {
 
     // 検索を開始する
     const json = await search(query as Query);
-    const headers = new Headers();
-    headers.set("Content-Type", "application/json");
-    req.respond({
-      status: json.ok ? 400 : 200,
-      body: JSON.stringify(json),
-      headers,
-    });
+    respond({ status: json.ok ? 400 : 200, body: json, request: req });
   } catch (e) {
-    const headers = new Headers();
-    headers.set("Content-Type", "application/json");
-    req.respond({
-      status: 400,
-      body: JSON.stringify({ error: e.message }),
-      headers,
-    });
+    respond({ status: 400, body: { error: e.message }, request: req });
   }
 };
 

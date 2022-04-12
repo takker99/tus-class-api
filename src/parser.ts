@@ -86,15 +86,14 @@ export async function getFile(
   };
 }
 
-async function download(
+const download = (
   id: number,
   comSunFacesVIEW: string,
   auth: { jSessionId: string },
-) {
-  return postToCLASS("/up/faces/up/po/pPoa0202A.jsp", [
+): Promise<Response> =>
+  postToCLASS("/up/faces/up/po/pPoa0202A.jsp", [
     { key: `form1:htmlFileTable:${id}:downLoadButton.x`, value: "0" },
     { key: `form1:htmlFileTable:${id}:downLoadButton.y`, value: "0" },
     { key: "com.sun.faces.VIEW", value: comSunFacesVIEW },
     { key: "form1", value: "form1" },
   ], auth);
-}

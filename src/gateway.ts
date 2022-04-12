@@ -1,4 +1,5 @@
 import { ServerRequest } from "./deps_pinned.ts";
+import { readAll } from "./deps.ts";
 import { Auth } from "./login.ts";
 
 export function onlyPOST(req: ServerRequest) {
@@ -8,7 +9,7 @@ export function onlyPOST(req: ServerRequest) {
 }
 
 export async function checkAuth(req: ServerRequest) {
-  const buf: Uint8Array = await Deno.readAll(req.body);
+  const buf: Uint8Array = await readAll(req.body);
   const text = new TextDecoder().decode(buf);
   const search = `?${decodeURIComponent(text)}`;
   const params = new URLSearchParams(search);

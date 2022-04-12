@@ -2,14 +2,10 @@ import { DOMParser } from "../src/deps.ts";
 import { loginAsGuest } from "../src/login.ts";
 import { ServerRequest } from "../src/deps_pinned.ts";
 import { getFromCLASS } from "../src/fetch.ts";
+import { getRequestURL } from "../src/util.ts";
 
 export default async (req: ServerRequest) => {
-  const base = `${req.headers.get("x-forwarded-proto")}://${
-    req.headers.get(
-      "x-forwarded-host",
-    )
-  }`;
-  const url = new URL(req.url, base);
+  const url = getRequestURL(req);
   try {
     // URL parametersを取得する
     const params = { year: 9999, courseId: "", format: false };

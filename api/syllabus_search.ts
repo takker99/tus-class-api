@@ -1,8 +1,8 @@
-import { DOMParser } from "https://deno.land/x/deno_dom/deno-dom-wasm.ts";
+import { DOMParser } from "../src/deps.ts";
 import { loginAsGuest } from "../src/login.ts";
 import { ServerRequest } from "../src/deps_pinned.ts";
 import { goSyllabusList, postToCLASS } from "../src/fetch.ts";
-import { getComSunFacesVIEW } from "../src/util.ts";
+import { getComSunFacesVIEW, getRequestURL } from "../src/util.ts";
 
 const TERMS = [1, 2, 11, 12, 13, 14] as const;
 const COURSE_TYPES = [
@@ -428,12 +428,7 @@ const KEYS: (keyof Query)[] = [
 ];
 
 export default async (req: ServerRequest) => {
-  const base = `${req.headers.get("x-forwarded-proto")}://${
-    req.headers.get(
-      "x-forwarded-host",
-    )
-  }`;
-  const url = new URL(req.url, base);
+  const url = getRequestURL(req);
 
   // URL parametersを取得する
   const query: Partial<Query> = {};

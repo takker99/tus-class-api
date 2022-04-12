@@ -1,4 +1,5 @@
 import { HTMLDocument } from "./deps.ts";
+import { ServerRequest } from "./deps_pinned.ts";
 
 export const range = (n: number) => [...Array(n).keys()];
 
@@ -35,3 +36,11 @@ export function BlobToURI(blob: Blob) {
   fileReader.readAsDataURL(blob);
   return promise;
 }
+export const getRequestURL = (request: ServerRequest): URL => {
+  const base = `${request.headers.get("x-forwarded-proto")}://${
+    request.headers.get(
+      "x-forwarded-host",
+    )
+  }`;
+  return new URL(request.url, base);
+};

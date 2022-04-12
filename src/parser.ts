@@ -1,7 +1,4 @@
-import {
-  DOMParser,
-  Element,
-} from "https://deno.land/x/deno_dom/deno-dom-wasm.ts";
+import { DOMParser, Element } from "./deps.ts";
 import { getFromCLASS, postToCLASS } from "./fetch.ts";
 import { getComSunFacesVIEW } from "./util.ts";
 

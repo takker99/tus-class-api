@@ -2,7 +2,7 @@ import { DOMParser, Element } from "../src/deps.ts";
 import { Auth, login } from "../src/login.ts";
 import { parseSummary } from "../src/parser.ts";
 import { goDetailedInfoPage, goNext, hasNextPage } from "../src/fetch.ts";
-import { getComSunFacesVIEW, getTable } from "../src/util.ts";
+import { getComSunFacesVIEW, getRequestURL, getTable } from "../src/util.ts";
 import { ServerRequest } from "../src/deps_pinned.ts";
 import { checkAuth, onlyPOST } from "../src/gateway.ts";
 
@@ -11,12 +11,7 @@ export default async (req: ServerRequest) => {
   const auth = await checkAuth(req);
   if (!auth) return;
 
-  const base = `${req.headers.get("x-forwarded-proto")}://${
-    req.headers.get(
-      "x-forwarded-host",
-    )
-  }`;
-  const url = new URL(req.url, base);
+  const url = getRequestURL(req);
   const param = url.searchParams.get("category");
   const categoryId = param ? parseInt(param) : undefined;
   if (categoryId === undefined) {

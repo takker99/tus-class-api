@@ -1,4 +1,4 @@
-import { DOMParser } from "https://deno.land/x/deno_dom/deno-dom-wasm.ts";
+import { DOMParser } from "./deps.ts";
 import { getAuthData } from "./auth.ts";
 import { postToCLASS } from "./fetch.ts";
 import { getComSunFacesVIEW, getTable, range } from "./util.ts";
@@ -43,10 +43,9 @@ export async function login({ userId, password }: Auth) {
             `${baseId}:${index}:htmlDisplayOfAll:0:htmlCountCol21702`,
           )?.textContent?.replace(/全(\d+)件/, "$1") ?? "",
         ),
-        hasHiddenAnnounces:
-          dom.getElementById(
-            `${baseId}:${index}:htmlDisplayOfAll:0:htmlCountCol21702`,
-          )?.nextElementSibling !== null,
+        hasHiddenAnnounces: dom.getElementById(
+          `${baseId}:${index}:htmlDisplayOfAll:0:htmlCountCol21702`,
+        )?.nextElementSibling !== null,
         id: index,
       });
     }

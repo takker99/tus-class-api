@@ -3,18 +3,14 @@ import { Auth, login } from "../src/login.ts";
 import { checkAuth, onlyPOST } from "../src/gateway.ts";
 import { parseAnnounce } from "../src/parser.ts";
 import { goDetailedInfoPage } from "../src/fetch.ts";
+import { getRequestURL } from "../src/util.ts";
 
 export default async (req: ServerRequest) => {
   if (!onlyPOST(req)) return;
   const auth = await checkAuth(req);
   if (!auth) return;
 
-  const base = `${req.headers.get("x-forwarded-proto")}://${
-    req.headers.get(
-      "x-forwarded-host",
-    )
-  }`;
-  const url = new URL(req.url, base);
+  const url = getRequestURL(req);
   const param = url.searchParams.get("category");
   const categoryId = param ? parseInt(param) : undefined;
   if (categoryId === undefined) {

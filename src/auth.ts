@@ -1,4 +1,4 @@
-import { DOMParser } from "https://deno.land/x/deno_dom/deno-dom-wasm.ts";
+import { DOMParser } from "./deps.ts";
 import { getComSunFacesVIEW } from "./util.ts";
 
 export async function getAuthData() {
